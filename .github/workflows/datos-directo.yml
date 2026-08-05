@@ -1,0 +1,40 @@
+name: Actualizar datos en directo
+
+on:
+  schedule:
+    # Cada 15 minutos. GitHub puede retrasarlo un poco en horas punta,
+    # es normal.
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    # Permite lanzarlo a mano desde la pestaña "Actions" del repo,
+    # útil para probarlo sin esperar al cron.
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Consultar Ecowitt y generar data/directo.json
+        env:
+          ECOWITT_APPLICATION_KEY: ${{ secrets.ECOWITT_APPLICATION_KEY }}
+          ECOWITT_API_KEY: ${{ secrets.ECOWITT_API_KEY }}
+        run: node scripts/actualizar-directo.js
+
+      - name: Publicar el cambio si hay datos nuevos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/directo.json
+          git diff --cached --quiet || git commit -m "Actualizar datos en directo"
+          git push

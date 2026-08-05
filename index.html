@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MeteoArtejón</title>
+
+    <link rel="stylesheet" href="css/estilos.css">
+
+</head>
+
+<body>
+
+    <!-- ==================== PORTADA ==================== -->
+
+    <section id="portada">
+
+        <header>
+
+            <h1>MeteoArtejón</h1>
+
+            <p class="subtitulo">
+                Archivo climatológico de Vegas de Matute (Segovia)
+            </p>
+
+        </header>
+
+        <main>
+
+            <section id="descripcion">
+
+                <h2>Bienvenido</h2>
+
+                <p>
+                    MeteoArtejón recopila, analiza y visualiza los datos registrados
+                    por la estación meteorológica de Vegas de Matute.
+                    Podrás consultar récords, estadísticas y gráficas históricas de
+                    temperatura, lluvia, viento, humedad, presión y radiación.
+                </p>
+
+            </section>
+
+            <section id="resumen">
+
+                <h2>Resumen de la estación</h2>
+
+                <div class="dato datoLargo">
+
+                    <span class="tituloDato">Periodo disponible</span>
+                    <span id="periodoDisponible">--</span>
+
+                </div>
+
+                <div class="dato">
+
+                    <span class="tituloDato">Registros</span>
+                    <span id="numeroRegistros">--</span>
+
+                </div>
+
+                <div class="dato">
+
+                    <span class="tituloDato">Última actualización</span>
+                    <span id="ultimaActualizacion">--</span>
+
+                </div>
+
+                <button id="btnExplicacionVariables" class="enlaceExplicacion">
+                    Explicación variables →
+                </button>
+
+            </section>
+
+        </main>
+
+        <footer>
+
+            <button id="btnInicio">
+                01 Inicio
+            </button>
+
+            <button id="btnConsultas">
+                02 Consultas
+            </button>
+
+            <button id="btnGraficas">
+                03 Gráficas
+            </button>
+
+            <button id="btnDatosDirecto">
+                04 Datos en directo
+            </button>
+
+        </footer>
+
+    </section>
+
+    <!-- ==================== MODAL EXPLICACIÓN DE VARIABLES ==================== -->
+
+    <div id="modalVariables" class="modalOverlay" hidden>
+
+        <div class="modalContenido">
+
+            <button id="btnCerrarModal" class="cerrarModal">✕</button>
+
+            <h2>Explicación de variables</h2>
+
+            <p class="introModal">
+                Qué significa cada indicador que verás en las tarjetas y curiosidades de MeteoArtejón.
+            </p>
+
+            <dl class="listaVariables">
+
+                <dt>Temperatura máxima / mínima</dt>
+                <dd>Los valores más altos y más bajos registrados por la estación, con la fecha y hora exactas en que ocurrieron.</dd>
+
+                <dt>Amplitud térmica</dt>
+                <dd>Diferencia entre la temperatura máxima y la mínima de un mismo día. Cuanto mayor es, más ha oscilado la temperatura entre el día y la noche.</dd>
+
+                <dt>Racha (de viento)</dt>
+                <dd>La velocidad más alta alcanzada por el viento en un instante puntual, a diferencia de la velocidad media, que es un promedio sostenido.</dd>
+
+                <dt>Dirección predominante</dt>
+                <dd>El punto cardinal desde el que ha soplado el viento con más frecuencia, expresado en las 8 orientaciones: N (Norte), NE (Noreste), E (Este), SE (Sureste), S (Sur), SO (Suroeste), O (Oeste) y NO (Noroeste).</dd>
+
+                <dt>Radiación</dt>
+                <dd>Energía solar acumulada que ha llegado a la estación durante el día, medida en Wh/m². Está muy relacionada con las horas de sol y la nubosidad.</dd>
+
+                <dt>Lluvia diaria / mensual / anual</dt>
+                <dd>Precipitación acumulada en el día, mes o año en curso. Cada periodo se reinicia a cero al empezar el siguiente (el diario a las 00:00, el mensual el día 1, el anual el 1 de enero).</dd>
+
+                <dt>Episodio de lluvia</dt>
+                <dd>Un tramo de lluvia continua, desde que empieza a llover hasta que para durante un tiempo prolongado. Se mide su duración y la cantidad total de agua caída en ese tramo.</dd>
+
+                <dt>Noche tropical / noche tórrida</dt>
+                <dd>Una noche tropical es aquella en la que la temperatura no baja de 20 °C. Si no baja de 25 °C, se considera noche tórrida.</dd>
+
+                <dt>Helada</dt>
+                <dd>Día en el que la temperatura mínima ha bajado de 0 °C.</dd>
+
+                <dt>Verano / invierno meteorológico</dt>
+                <dd>A efectos estadísticos, el verano agrupa junio, julio y agosto, y el invierno diciembre, enero y febrero (el invierno "a caballo" entre dos años se identifica con el año en que termina).</dd>
+
+            </dl>
+
+        </div>
+
+    </div>
+
+    <!-- ==================== APLICACIÓN ==================== -->
+
+    <section id="aplicacion" hidden>
+
+        <main>
+
+            <!-- ==================== INICIO ==================== -->
+
+            <section id="pantallaInicio">
+
+                <header class="cabeceraDashboard">
+
+                    <div>
+
+                        <h1>01 · Inicio</h1>
+                        <p>Dashboard principal</p>
+
+                    </div>
+
+                    <button id="btnPortada" class="logoDashboard">
+
+                        MeteoArtejón
+
+                    </button>
+
+                </header>
+
+                
+                <section class="bloqueDashboard">
+
+                    <h2>Récords absolutos</h2>
+
+                    <div class="gridDashboard">
+
+                        <article class="tarjeta" id="tarjetaTempMax">
+
+    <div class="tarjetaInterior">
+
+        <div class="caraTarjeta caraDelantera">
+
+            <div class="iconoTarjeta">🌡️</div>
+            <h3 class="tituloTarjeta">Temperatura máxima</h3>
+            <div id="tempMaxValor" class="valorTarjeta">--</div>
+            <div id="tempMaxFecha" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Toca para ver este año</div>
+
+        </div>
+
+        <div class="caraTarjeta caraTrasera">
+
+            <div class="iconoTarjeta">🌡️</div>
+            <h3 class="tituloTarjeta">Máxima este año</h3>
+            <div id="tempMaxValorAnual" class="valorTarjeta">--</div>
+            <div id="tempMaxFechaAnual" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Récord absoluto</div>
+
+        </div>
+
+    </div>
+
+</article>
+                        <article class="tarjeta" id="tarjetaTempMin">
+
+    <div class="tarjetaInterior">
+
+        <div class="caraTarjeta caraDelantera">
+
+            <div class="iconoTarjeta">❄️</div>
+            <h3 class="tituloTarjeta">Temperatura mínima</h3>
+            <div id="tempMinValor" class="valorTarjeta">--</div>
+            <div id="tempMinFecha" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Toca para ver este año</div>
+
+        </div>
+
+        <div class="caraTarjeta caraTrasera">
+
+            <div class="iconoTarjeta">❄️</div>
+            <h3 class="tituloTarjeta">Mínima este año</h3>
+            <div id="tempMinValorAnual" class="valorTarjeta">--</div>
+            <div id="tempMinFechaAnual" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Récord absoluto</div>
+
+        </div>
+
+    </div>
+
+</article>
+                        <article class="tarjeta" id="tarjetaAmplitud">
+
+    <div class="tarjetaInterior">
+
+        <div class="caraTarjeta caraDelantera">
+
+            <div class="iconoTarjeta">🌡️</div>
+            <h3 class="tituloTarjeta">Máxima amplitud Térmica</h3>
+            <div id="amplitudValor" class="valorTarjeta">--</div>
+            <div id="amplitudFecha" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Toca para ver este año</div>
+
+        </div>
+
+        <div class="caraTarjeta caraTrasera">
+
+            <div class="iconoTarjeta">🌡️</div>
+            <h3 class="tituloTarjeta">Amplitud este año</h3>
+            <div id="amplitudValorAnual" class="valorTarjeta">--</div>
+            <div id="amplitudFechaAnual" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Récord absoluto</div>
+
+        </div>
+
+    </div>
+
+</article>
+                        <article class="tarjeta" id="tarjetaRacha">
+
+    <div class="tarjetaInterior">
+
+        <div class="caraTarjeta caraDelantera">
+
+            <div class="iconoTarjeta">💨</div>
+            <h3 class="tituloTarjeta">Mayor racha</h3>
+            <div id="rachaValor" class="valorTarjeta">--</div>
+            <div id="rachaFecha" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Toca para ver este año</div>
+
+        </div>
+
+        <div class="caraTarjeta caraTrasera">
+
+            <div class="iconoTarjeta">💨</div>
+            <h3 class="tituloTarjeta">Mayor racha este año</h3>
+            <div id="rachaValorAnual" class="valorTarjeta">--</div>
+            <div id="rachaFechaAnual" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Récord absoluto</div>
+
+        </div>
+
+    </div>
+
+</article>
+                        <article class="tarjeta" id="tarjetaDireccion">
+
+    <div class="tarjetaInterior">
+
+        <div class="caraTarjeta caraDelantera">
+
+            <div class="iconoTarjeta">🧭</div>
+            <h3 class="tituloTarjeta">Dirección predominante</h3>
+            <div id="direccionValor" class="valorTarjeta">--</div>
+            <div id="direccionDetalle" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Toca para ver este año</div>
+
+        </div>
+
+        <div class="caraTarjeta caraTrasera">
+
+            <div class="iconoTarjeta">🧭</div>
+            <h3 class="tituloTarjeta">Predominante este año</h3>
+            <div id="direccionValorAnual" class="valorTarjeta">--</div>
+            <div id="direccionDetalleAnual" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Histórico</div>
+
+        </div>
+
+    </div>
+
+</article>
+                        <article class="tarjeta" id="tarjetaSinLluvia">
+
+    <div class="tarjetaInterior">
+
+        <div class="caraTarjeta caraDelantera">
+
+            <div class="iconoTarjeta">☀️</div>
+            <h3 class="tituloTarjeta">Días sin llover</h3>
+            <div id="sinLluviaValor" class="valorTarjeta">--</div>
+            <div id="sinLluviaFecha" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Toca para ver la racha actual</div>
+
+        </div>
+
+        <div class="caraTarjeta caraTrasera">
+
+            <div class="iconoTarjeta">☀️</div>
+            <h3 class="tituloTarjeta">Racha actual sin llover</h3>
+            <div id="sinLluviaValorActual" class="valorTarjeta">--</div>
+            <div id="sinLluviaFechaActual" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Récord absoluto</div>
+
+        </div>
+
+    </div>
+
+</article>
+                       <article class="tarjeta" id="tarjetaLluvia">
+
+    <div class="tarjetaInterior">
+
+        <div class="caraTarjeta caraDelantera">
+
+            <div class="iconoTarjeta">🌧️</div>
+            <h3 class="tituloTarjeta">Días seguidos lloviendo</h3>
+            <div id="lluviaValor" class="valorTarjeta">--</div>
+            <div id="lluviaFecha" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Toca para ver la racha actual</div>
+
+        </div>
+
+        <div class="caraTarjeta caraTrasera">
+
+            <div class="iconoTarjeta">🌧️</div>
+            <h3 class="tituloTarjeta">Racha actual lloviendo</h3>
+            <div id="lluviaValorActual" class="valorTarjeta">--</div>
+            <div id="lluviaFechaActual" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Récord absoluto</div>
+
+        </div>
+
+    </div>
+
+</article>
+                        <article class="tarjeta" id="tarjetaRadiacion">
+
+    <div class="tarjetaInterior">
+
+        <div class="caraTarjeta caraDelantera">
+
+            <div class="iconoTarjeta">☀️</div>
+            <h3 class="tituloTarjeta">Día con mayor radiación</h3>
+            <div id="radiacionValor" class="valorTarjeta">--</div>
+            <div id="radiacionFecha" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Toca para ver este año</div>
+
+        </div>
+
+        <div class="caraTarjeta caraTrasera">
+
+            <div class="iconoTarjeta">☀️</div>
+            <h3 class="tituloTarjeta">Mayor radiación este año</h3>
+            <div id="radiacionValorAnual" class="valorTarjeta">--</div>
+            <div id="radiacionFechaAnual" class="detalleTarjeta">--</div>
+            <div class="pistaTarjeta">Récord absoluto</div>
+
+        </div>
+
+    </div>
+
+</article>
+
+                    </div>
+
+                </section>
+
+                <section class="bloqueDashboard">
+
+<div class="cabeceraCuriosidades">
+
+    <button id="btnCuriosidadAnterior">❮</button>
+
+    <h2>¿Sabías...?</h2>
+
+    <button id="btnCuriosidadSiguiente">❯</button>
+
+</div>
+
+                    <div class="gridCuriosidades">
+
+    <article class="curiosidad">
+
+        <div class="tarjetaInterior">
+
+            <div class="caraTarjeta caraDelantera caraCuriosidad">
+
+                <div id="iconoCuriosidad1" class="iconoCuriosidad"></div>
+                <h3 id="tituloCuriosidad1" class="tituloCuriosidad"></h3>
+                <div id="valorCuriosidad1" class="valorCuriosidad"></div>
+                <div id="detalleCuriosidad1" class="detalleCuriosidad"></div>
+
+            </div>
+
+            <div class="caraTarjeta caraTrasera caraCuriosidad">
+
+                <div id="iconoCuriosidad1Actual" class="iconoCuriosidad"></div>
+                <h3 id="tituloCuriosidad1Actual" class="tituloCuriosidad">Ahora mismo</h3>
+                <div id="valorCuriosidad1Actual" class="valorCuriosidad"></div>
+                <div id="detalleCuriosidad1Actual" class="detalleCuriosidad"></div>
+
+            </div>
+
+        </div>
+
+    </article>
+
+    <article class="curiosidad">
+
+        <div class="tarjetaInterior">
+
+            <div class="caraTarjeta caraDelantera caraCuriosidad">
+
+                <div id="iconoCuriosidad2" class="iconoCuriosidad"></div>
+                <h3 id="tituloCuriosidad2" class="tituloCuriosidad"></h3>
+                <div id="valorCuriosidad2" class="valorCuriosidad"></div>
+                <div id="detalleCuriosidad2" class="detalleCuriosidad"></div>
+
+            </div>
+
+            <div class="caraTarjeta caraTrasera caraCuriosidad">
+
+                <div id="iconoCuriosidad2Actual" class="iconoCuriosidad"></div>
+                <h3 id="tituloCuriosidad2Actual" class="tituloCuriosidad">Ahora mismo</h3>
+                <div id="valorCuriosidad2Actual" class="valorCuriosidad"></div>
+                <div id="detalleCuriosidad2Actual" class="detalleCuriosidad"></div>
+
+            </div>
+
+        </div>
+
+    </article>
+
+    <article class="curiosidad">
+
+        <div class="tarjetaInterior">
+
+            <div class="caraTarjeta caraDelantera caraCuriosidad">
+
+                <div id="iconoCuriosidad3" class="iconoCuriosidad"></div>
+                <h3 id="tituloCuriosidad3" class="tituloCuriosidad"></h3>
+                <div id="valorCuriosidad3" class="valorCuriosidad"></div>
+                <div id="detalleCuriosidad3" class="detalleCuriosidad"></div>
+
+            </div>
+
+            <div class="caraTarjeta caraTrasera caraCuriosidad">
+
+                <div id="iconoCuriosidad3Actual" class="iconoCuriosidad"></div>
+                <h3 id="tituloCuriosidad3Actual" class="tituloCuriosidad">Ahora mismo</h3>
+                <div id="valorCuriosidad3Actual" class="valorCuriosidad"></div>
+                <div id="detalleCuriosidad3Actual" class="detalleCuriosidad"></div>
+
+            </div>
+
+        </div>
+
+    </article>
+
+    <article class="curiosidad">
+
+        <div class="tarjetaInterior">
+
+            <div class="caraTarjeta caraDelantera caraCuriosidad">
+
+                <div id="iconoCuriosidad4" class="iconoCuriosidad"></div>
+                <h3 id="tituloCuriosidad4" class="tituloCuriosidad"></h3>
+                <div id="valorCuriosidad4" class="valorCuriosidad"></div>
+                <div id="detalleCuriosidad4" class="detalleCuriosidad"></div>
+
+            </div>
+
+            <div class="caraTarjeta caraTrasera caraCuriosidad">
+
+                <div id="iconoCuriosidad4Actual" class="iconoCuriosidad"></div>
+                <h3 id="tituloCuriosidad4Actual" class="tituloCuriosidad">Ahora mismo</h3>
+                <div id="valorCuriosidad4Actual" class="valorCuriosidad"></div>
+                <div id="detalleCuriosidad4Actual" class="detalleCuriosidad"></div>
+
+            </div>
+
+        </div>
+
+    </article>
+
+</div>
+
+                </section>
+
+            </section>
+
+            <!-- ==================== CONSULTAS ==================== -->
+
+            <section id="pantallaConsultas" hidden>
+
+            </section>
+
+            <!-- ==================== GRÁFICAS ==================== -->
+
+            <section id="pantallaGraficas" hidden>
+
+            </section>
+
+            <!-- ==================== DATOS EN DIRECTO ==================== -->
+
+            <section id="pantallaDirecto" hidden>
+
+                <header class="cabeceraDashboard">
+
+                    <div>
+
+                        <h1>04 · Datos en directo</h1>
+                        <p>Estación de Vegas de Matute (Ecowitt)</p>
+
+                    </div>
+
+                    <button id="btnPortadaDirecto" class="logoDashboard">
+
+                        MeteoArtejón
+
+                    </button>
+
+                </header>
+
+                <section class="bloqueDashboard">
+
+                    <h2>Condiciones actuales</h2>
+
+                    <div id="avisoDirecto" class="avisoDirecto" hidden></div>
+
+                    <div class="gridDirecto">
+
+                        <article class="tarjetaDirecto">
+                            <div class="iconoTarjeta">🌡️</div>
+                            <h3 class="tituloTarjeta">Temperatura</h3>
+                            <div id="directoTemperatura" class="valorTarjeta">--</div>
+                            <div id="directoSensacion" class="detalleTarjeta">--</div>
+                        </article>
+
+                        <article class="tarjetaDirecto">
+                            <div class="iconoTarjeta">💧</div>
+                            <h3 class="tituloTarjeta">Humedad</h3>
+                            <div id="directoHumedad" class="valorTarjeta">--</div>
+                            <div class="detalleTarjeta">Humedad relativa</div>
+                        </article>
+
+                        <article class="tarjetaDirecto">
+                            <div class="iconoTarjeta">💨</div>
+                            <h3 class="tituloTarjeta">Viento</h3>
+                            <div id="directoViento" class="valorTarjeta">--</div>
+                            <div id="directoRacha" class="detalleTarjeta">--</div>
+                        </article>
+
+                        <article class="tarjetaDirecto">
+                            <div class="iconoTarjeta">🧭</div>
+                            <h3 class="tituloTarjeta">Dirección</h3>
+                            <div id="directoDireccion" class="valorTarjeta">--</div>
+                            <div class="detalleTarjeta">Instantánea</div>
+                        </article>
+
+                        <article class="tarjetaDirecto">
+                            <div class="iconoTarjeta">🔵</div>
+                            <h3 class="tituloTarjeta">Presión</h3>
+                            <div id="directoPresion" class="valorTarjeta">--</div>
+                            <div class="detalleTarjeta">Relativa</div>
+                        </article>
+
+                        <article class="tarjetaDirecto">
+                            <div class="iconoTarjeta">🌧️</div>
+                            <h3 class="tituloTarjeta">Lluvia hoy</h3>
+                            <div id="directoLluvia" class="valorTarjeta">--</div>
+                            <div id="directoIntensidad" class="detalleTarjeta">--</div>
+                        </article>
+
+                        <article class="tarjetaDirecto">
+                            <div class="iconoTarjeta">☀️</div>
+                            <h3 class="tituloTarjeta">Radiación / UVI</h3>
+                            <div id="directoRadiacion" class="valorTarjeta">--</div>
+                            <div id="directoUvi" class="detalleTarjeta">--</div>
+                        </article>
+
+                    </div>
+
+                    <p id="directoActualizado" class="notaDirecto">--</p>
+
+                </section>
+
+            </section>
+
+        </main>
+
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <script src="js/excel.js"></script>
+    <script src="js/consultas.js"></script>
+    <script src="js/portada.js"></script>
+    <script src="js/curiosidades.js"></script>
+    <script src="js/inicio.js"></script>
+    <script src="js/directo.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
