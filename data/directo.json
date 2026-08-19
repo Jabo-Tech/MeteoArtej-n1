@@ -1,16 +1,16 @@
 {
-  "actualizado": "2026-08-19T06:33:13.047Z",
-  "temperatura": 70.9,
-  "sensacion": 70.9,
-  "humedad": 52,
-  "viento": 0,
-  "racha": 0,
-  "direccionGrados": 250,
+  "actualizado": "2026-08-19T07:24:10.756Z",
+  "temperatura": 76.8,
+  "sensacion": 76.8,
+  "humedad": 46,
+  "viento": 0.2,
+  "racha": 1.1,
+  "direccionGrados": 259,
   "direccion": "O",
   "direccionNombre": "Oeste",
   "presion": 29.85,
   "lluviaHoy": 0,
   "intensidadLluvia": 0,
-  "radiacion": 72.5,
-  "uvi": 0
+  "radiacion": 183.9,
+  "uvi": 1
 }
