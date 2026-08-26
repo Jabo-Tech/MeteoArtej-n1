@@ -1156,6 +1156,8 @@ button:hover{
 
     }
 
+    .tarjeta.girada .tarjetaInterior,
+    .curiosidad.girada .tarjetaInterior,
     .tarjetaInterior{
 
         transition:none;

@@ -76,10 +76,19 @@ function pintarResultado(resultado) {
 
     const elementoFecha = document.getElementById("resultadoFecha");
 
-    if (fechaOcurrencia) {
+    if (fechaOcurrencia && fechaOcurrencia.inicio && fechaOcurrencia.fin) {
 
         elementoFecha.hidden = false;
-        elementoFecha.textContent = `Ocurrió el ${fechaOcurrencia.fecha} · ${fechaOcurrencia.hora}`;
+        elementoFecha.textContent = fechaOcurrencia.inicio === fechaOcurrencia.fin
+            ? `Ocurrió el ${fechaOcurrencia.inicio}`
+            : `Del ${fechaOcurrencia.inicio} al ${fechaOcurrencia.fin}`;
+
+    } else if (fechaOcurrencia && fechaOcurrencia.fecha) {
+
+        elementoFecha.hidden = false;
+        elementoFecha.textContent = fechaOcurrencia.hora
+            ? `Ocurrió el ${fechaOcurrencia.fecha} · ${fechaOcurrencia.hora}`
+            : `Ocurrió el ${fechaOcurrencia.fecha}`;
 
     } else {
 
@@ -137,5 +146,9 @@ document.getElementById("btnConsultar").addEventListener("click", () => {
     const resultado = ejecutarConsultaAvanzada(registrosConsulta, opciones);
 
     pintarResultado(resultado);
+
+    if (typeof registrarEvento === "function") {
+        registrarEvento("consulta-realizada", `${variableId} / ${indicadorId}`);
+    }
 
 });

@@ -278,6 +278,10 @@ function generarGraficas() {
     const indicadorId = document.getElementById("graficaIndicador").value;
     const periodoId = document.getElementById("graficaPeriodo").value;
 
+    if (typeof registrarEvento === "function") {
+        registrarEvento("grafica-generada", `${variableId} / ${indicadorId}`);
+    }
+
     const fechaInicio = document.getElementById("graficaFechaInicio").value;
     const fechaFin = document.getElementById("graficaFechaFin").value;
 

@@ -491,6 +491,7 @@ function calcularEspecialBucket(indicador, registrosBucket, contexto) {
         case "amplitud": {
 
             let mayor = null;
+            let fechaMayor = null;
 
             for (const fecha in dias) {
 
@@ -501,11 +502,16 @@ function calcularEspecialBucket(indicador, registrosBucket, contexto) {
 
                 const amplitud = max - min;
 
-                if (mayor === null || amplitud > mayor) mayor = amplitud;
+                if (mayor === null || amplitud > mayor) {
+                    mayor = amplitud;
+                    fechaMayor = fecha;
+                }
 
             }
 
-            return mayor;
+            if (mayor === null) return null;
+
+            return { valor: mayor, meta: { fecha: fechaMayor } };
 
         }
 
@@ -558,17 +564,23 @@ function calcularEspecialBucket(indicador, registrosBucket, contexto) {
 
         case "lluviaMaxima": {
 
-            let mayor = 0;
+            const fechas = Object.keys(dias);
 
-            for (const fecha in dias) {
+            let mayor = 0;
+            let fechaMayor = fechas.length > 0 ? fechas[0] : null;
+
+            for (const fecha of fechas) {
 
                 const valor = maximoDe(dias[fecha].map(r => r.lluviaDiaria)) || 0;
 
-                if (valor > mayor) mayor = valor;
+                if (valor > mayor) {
+                    mayor = valor;
+                    fechaMayor = fecha;
+                }
 
             }
 
-            return mayor;
+            return { valor: mayor, meta: { fecha: fechaMayor } };
 
         }
 
@@ -603,7 +615,10 @@ function calcularEspecialBucket(indicador, registrosBucket, contexto) {
             const fechasOrdenadas = Object.keys(dias).sort();
 
             let rachaActual = 0;
+            let inicioActual = null;
             let mejorRacha = 0;
+            let mejorInicio = null;
+            let mejorFin = null;
 
             for (const fecha of fechasOrdenadas) {
 
@@ -611,19 +626,26 @@ function calcularEspecialBucket(indicador, registrosBucket, contexto) {
 
                 if (lluvia === 0) {
 
+                    if (rachaActual === 0) inicioActual = fecha;
+
                     rachaActual++;
 
-                    if (rachaActual > mejorRacha) mejorRacha = rachaActual;
+                    if (rachaActual > mejorRacha) {
+                        mejorRacha = rachaActual;
+                        mejorInicio = inicioActual;
+                        mejorFin = fecha;
+                    }
 
                 } else {
 
                     rachaActual = 0;
+                    inicioActual = null;
 
                 }
 
             }
 
-            return mejorRacha;
+            return { valor: mejorRacha, meta: { inicio: mejorInicio, fin: mejorFin } };
 
         }
 
@@ -634,7 +656,10 @@ function calcularEspecialBucket(indicador, registrosBucket, contexto) {
             const fechasOrdenadas = Object.keys(dias).sort();
 
             let rachaActual = 0;
+            let inicioActual = null;
             let mejorRacha = 0;
+            let mejorInicio = null;
+            let mejorFin = null;
 
             for (const fecha of fechasOrdenadas) {
 
@@ -642,19 +667,26 @@ function calcularEspecialBucket(indicador, registrosBucket, contexto) {
 
                 if (lluvia > 0) {
 
+                    if (rachaActual === 0) inicioActual = fecha;
+
                     rachaActual++;
 
-                    if (rachaActual > mejorRacha) mejorRacha = rachaActual;
+                    if (rachaActual > mejorRacha) {
+                        mejorRacha = rachaActual;
+                        mejorInicio = inicioActual;
+                        mejorFin = fecha;
+                    }
 
                 } else {
 
                     rachaActual = 0;
+                    inicioActual = null;
 
                 }
 
             }
 
-            return mejorRacha;
+            return { valor: mejorRacha, meta: { inicio: mejorInicio, fin: mejorFin } };
 
         }
 
@@ -735,13 +767,26 @@ function calcularEspecialGlobal(indicador, filas, registrosPeriodo) {
         case "amplitud":
         case "diasSinLlover":
         case "diasSeguidosLloviendo":
-            return maximoDe(filas.map(f => f.valor));
+        case "lluviaMaxima": {
+
+            let mejorFila = null;
+
+            for (const fila of filas) {
+
+                if (mejorFila === null || fila.valor > mejorFila.valor) {
+                    mejorFila = fila;
+                }
+
+            }
+
+            if (!mejorFila) return null;
+
+            return { valor: mejorFila.valor, meta: mejorFila.meta };
+
+        }
 
         case "lluviaAcumulada":
             return Number(filas.reduce((suma, f) => suma + (f.valor || 0), 0).toFixed(1));
-
-        case "lluviaMaxima":
-            return maximoDe(filas.map(f => f.valor));
 
         case "direccionPredominante": {
 
@@ -824,17 +869,31 @@ function ejecutarConsultaAvanzada(registros, opciones) {
 
     const filas = buckets.map(bucket => {
 
-        const valor = indicador.tipo
+        const resultadoBucket = indicador.tipo
             ? calcularEspecialBucket(indicador, bucket.registros, contexto)
             : indicador.calcularBucket(bucket.registros);
 
-        return { etiqueta: bucket.etiqueta, valor };
+        // Algunos indicadores especiales devuelven { valor, meta } para
+        // poder arrastrar el día/rango exacto del extremo; los demás
+        // devuelven directamente el número.
+        const esObjeto = resultadoBucket !== null && typeof resultadoBucket === "object";
+
+        return {
+            etiqueta: bucket.etiqueta,
+            valor: esObjeto ? resultadoBucket.valor : resultadoBucket,
+            meta: esObjeto ? resultadoBucket.meta : null
+        };
 
     }).filter(fila => fila.valor !== null);
 
-    const valorGlobal = indicador.tipo
+    const resultadoGlobal = indicador.tipo
         ? calcularEspecialGlobal(indicador, filas, registrosPeriodo)
         : indicador.calcularGlobal(registrosPeriodo, filas, contexto);
+
+    const globalEsObjeto = resultadoGlobal !== null && typeof resultadoGlobal === "object";
+
+    const valorGlobal = globalEsObjeto ? resultadoGlobal.valor : resultadoGlobal;
+    const metaGlobal = globalEsObjeto ? resultadoGlobal.meta : null;
 
     // Para indicadores simples de máximo/mínimo (campo + extremo definidos),
     // buscamos también el día y hora exactos en que se produjo ese valor.
@@ -846,6 +905,14 @@ function ejecutarConsultaAvanzada(registros, opciones) {
 
         if (encontrado) {
             fechaOcurrencia = { fecha: encontrado.fecha, hora: encontrado.hora };
+        }
+
+    } else if (metaGlobal) {
+
+        if (metaGlobal.inicio && metaGlobal.fin) {
+            fechaOcurrencia = { inicio: metaGlobal.inicio, fin: metaGlobal.fin };
+        } else if (metaGlobal.fecha) {
+            fechaOcurrencia = { fecha: metaGlobal.fecha };
         }
 
     }
