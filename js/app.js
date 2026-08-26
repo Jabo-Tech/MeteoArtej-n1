@@ -9,14 +9,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const pantallaInicio = document.getElementById("pantallaInicio");
     const pantallaDirecto = document.getElementById("pantallaDirecto");
+    const pantallaConsultas = document.getElementById("pantallaConsultas");
+    const pantallaGraficas = document.getElementById("pantallaGraficas");
+
+    function mostrarPantalla(pantalla) {
+
+        portada.style.display = "none";
+        aplicacion.style.display = "block";
+
+        pantallaInicio.hidden = pantalla !== pantallaInicio;
+        pantallaDirecto.hidden = pantalla !== pantallaDirecto;
+        pantallaConsultas.hidden = pantalla !== pantallaConsultas;
+        pantallaGraficas.hidden = pantalla !== pantallaGraficas;
+
+        window.scrollTo(0, 0);
+
+    }
 
     document.getElementById("btnInicio").onclick = () => {
 
-    portada.style.display = "none";
-    aplicacion.style.display = "block";
-
-    pantallaDirecto.hidden = true;
-    pantallaInicio.hidden = false;
+    mostrarPantalla(pantallaInicio);
 
     cargarInicio(registros);
 
@@ -24,13 +36,25 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     document.getElementById("btnDatosDirecto").onclick = () => {
 
-    portada.style.display = "none";
-    aplicacion.style.display = "block";
-
-    pantallaInicio.hidden = true;
-    pantallaDirecto.hidden = false;
+    mostrarPantalla(pantallaDirecto);
 
     cargarDirecto();
+
+};
+
+    document.getElementById("btnConsultas").onclick = () => {
+
+    mostrarPantalla(pantallaConsultas);
+
+    cargarConsultas(registros);
+
+};
+
+    document.getElementById("btnGraficas").onclick = () => {
+
+    mostrarPantalla(pantallaGraficas);
+
+    cargarGraficas(registros);
 
 };
 
@@ -45,6 +69,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.querySelectorAll(".girada").forEach(tarjeta => {
             tarjeta.classList.remove("girada");
         });
+
+        window.scrollTo(0, 0);
 
     };
 

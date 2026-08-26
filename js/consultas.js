@@ -524,3 +524,54 @@ function obtenerRachaActualDiasLloviendo(registros) {
     };
 
 }
+
+
+// ========================================
+// OLAS DE CALOR
+// Criterio AEMET: episodio de 3+ días consecutivos con temperatura
+// máxima >= umbral. 35.4°C es una aproximación razonada para esta
+// ubicación (meseta a ~1000m), no el valor oficial exacto de AEMET
+// para esta estación concreta — ajustar si se consigue el dato real.
+// ========================================
+
+const UMBRAL_OLA_CALOR = 35.4;
+
+function obtenerRachaActualOlaCalor(registros) {
+
+    const dias = {};
+
+    for (const registro of registros) {
+
+        if (!(registro.fecha in dias) || registro.temperaturaMax > dias[registro.fecha]) {
+            dias[registro.fecha] = registro.temperaturaMax;
+        }
+
+    }
+
+    const fechas = Object.keys(dias).sort();
+
+    let racha = 0;
+    let inicio = null;
+
+    for (let i = fechas.length - 1; i >= 0; i--) {
+
+        const fecha = fechas[i];
+
+        if (dias[fecha] >= UMBRAL_OLA_CALOR) {
+
+            racha++;
+            inicio = fecha;
+
+        } else {
+            break;
+        }
+
+    }
+
+    return {
+        valor: racha,
+        inicio: inicio,
+        fin: fechas[fechas.length - 1]
+    };
+
+}

@@ -580,7 +580,7 @@ function obtenerAñoMasSoleado(registros) {
             años[año] = 0;
         }
 
-        años[año] += radiacion * 0.0005;
+        años[año] += radiacion * 0.5; // W/m² -> Wh/m² (intervalos de 30 min)
 
     }
 
@@ -1311,6 +1311,23 @@ function obtenerCuriosidades(registros) {
     detalleActual: actual && actual.mes ? `${actual.media.toFixed(1)} °C de media` : "Aún sin meses completos este año"
     });
 
+    dato = obtenerVeranoMasOlasCalor(registros);
+    actual = obtenerOlasCalorVeranoActual(registros);
+    curiosidades.push({
+    icono: "🥵",
+    titulo: "¿Qué verano tuvo más olas de calor?",
+    valor: dato.año || "Sin datos",
+    detalle: dato.año
+        ? `${dato.olas} ola${dato.olas === 1 ? "" : "s"} · ${dato.dias} día${dato.dias === 1 ? "" : "s"} sobre ${UMBRAL_OLA_CALOR}°C`
+        : "Aún no se ha registrado ninguna",
+    iconoActual: "🥵",
+    tituloActual: "Este verano",
+    valorActual: actual ? `${actual.olas} ola${actual.olas === 1 ? "" : "s"}` : "Fuera de temporada",
+    detalleActual: actual
+        ? `${actual.dias} día${actual.dias === 1 ? "" : "s"} sobre ${UMBRAL_OLA_CALOR}°C`
+        : "Ahora mismo no es verano"
+    });
+
 
     return curiosidades;
 
@@ -1547,7 +1564,7 @@ function obtenerRadiacionAcumuladaAñoActual(registros) {
 
         if (isNaN(valor)) continue;
 
-        radiacion += valor * 0.0005;
+        radiacion += valor * 0.5; // W/m² -> Wh/m² (intervalos de 30 min)
 
     }
 
@@ -1767,5 +1784,164 @@ function obtenerMesMasVentosoAñoActual(registros) {
 function obtenerMesMasLluviosoAñoActual(registros) {
 
     return obtenerMesMasLluvioso(obtenerRegistrosAñoActual(registros));
+
+}
+
+
+// ========================================
+// VERANO CON MÁS OLAS DE CALOR
+// (usa UMBRAL_OLA_CALOR, definido en consultas.js)
+// ========================================
+
+function obtenerVeranoMasOlasCalor(registros) {
+
+    const dias = {};
+
+    for (const registro of registros) {
+
+        const mes = Number(registro.fecha.substring(5, 7));
+
+        if (mes < 6 || mes > 8) continue;
+
+        if (!(registro.fecha in dias) || registro.temperaturaMax > dias[registro.fecha]) {
+            dias[registro.fecha] = registro.temperaturaMax;
+        }
+
+    }
+
+    // El verano en curso (si estamos en jun-ago) está incompleto
+    const ultima = registros[registros.length - 1].fecha;
+    const añoActual = ultima.substring(0, 4);
+    const mesActualNum = Number(ultima.substring(5, 7));
+    const veranoEnCurso = (mesActualNum >= 6 && mesActualNum <= 8) ? añoActual : null;
+
+    const veranos = {};
+
+    const fechasOrdenadas = Object.keys(dias).sort();
+
+    let añoRachaActual = null;
+    let rachaActual = 0;
+
+    function cerrarRacha() {
+
+        if (rachaActual >= 3 && añoRachaActual && añoRachaActual !== veranoEnCurso) {
+            veranos[añoRachaActual] = (veranos[añoRachaActual] || 0) + 1;
+        }
+
+        rachaActual = 0;
+        añoRachaActual = null;
+
+    }
+
+    for (const fecha of fechasOrdenadas) {
+
+        const año = fecha.substring(0, 4);
+
+        if (dias[fecha] >= UMBRAL_OLA_CALOR) {
+
+            if (añoRachaActual !== año) {
+                cerrarRacha();
+                añoRachaActual = año;
+            }
+
+            rachaActual++;
+
+        } else {
+
+            cerrarRacha();
+
+        }
+
+    }
+
+    cerrarRacha();
+
+    let mejorAño = null;
+    let mejorCuenta = 0;
+
+    for (const año in veranos) {
+
+        if (veranos[año] > mejorCuenta) {
+            mejorCuenta = veranos[año];
+            mejorAño = año;
+        }
+
+    }
+
+    // Nº de días individuales (no agrupados en olas) que superaron el
+    // umbral en el verano ganador — sirve para comprobar a ojo que el
+    // recuento de olas cuadra con los días reales.
+    let diasEnMejorAño = 0;
+
+    if (mejorAño) {
+
+        for (const fecha of fechasOrdenadas) {
+
+            if (fecha.substring(0, 4) === mejorAño && dias[fecha] >= UMBRAL_OLA_CALOR) {
+                diasEnMejorAño++;
+            }
+
+        }
+
+    }
+
+    return { año: mejorAño, olas: mejorCuenta, dias: diasEnMejorAño };
+
+}
+
+// ========================================
+// OLAS DE CALOR DEL VERANO EN CURSO
+// (para la cara trasera de la tarjeta — solo tiene valor si estamos
+// dentro de la temporada de verano ahora mismo)
+// ========================================
+
+function obtenerOlasCalorVeranoActual(registros) {
+
+    const { año, mes } = obtenerCicloActualInfo(registros);
+
+    if (mes < 6 || mes > 8) return null;
+
+    const dias = {};
+
+    for (const registro of registros) {
+
+        if (registro.fecha.substring(0, 4) !== año) continue;
+
+        const m = Number(registro.fecha.substring(5, 7));
+
+        if (m < 6 || m > 8) continue;
+
+        if (!(registro.fecha in dias) || registro.temperaturaMax > dias[registro.fecha]) {
+            dias[registro.fecha] = registro.temperaturaMax;
+        }
+
+    }
+
+    const fechasOrdenadas = Object.keys(dias).sort();
+
+    let racha = 0;
+    let olas = 0;
+    let diasSobreUmbral = 0;
+
+    for (const fecha of fechasOrdenadas) {
+
+        if (dias[fecha] >= UMBRAL_OLA_CALOR) {
+
+            racha++;
+            diasSobreUmbral++;
+
+        } else {
+
+            if (racha >= 3) olas++;
+
+            racha = 0;
+
+        }
+
+    }
+
+    if (racha >= 3) olas++;
+
+    return { año, olas, dias: diasSobreUmbral };
 
 }

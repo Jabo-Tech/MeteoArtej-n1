@@ -45,8 +45,12 @@ body{
     url("../img/fondo.jpg");
 
     background-size:cover;
+
     background-position:center;
+
     background-attachment:fixed;
+
+    background-color:var(--color-fondo);
 
     min-height:100vh;
 
@@ -236,6 +240,70 @@ footer{
 
 }
 
+.filaDirecto{
+
+    margin-top:24px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:14px;
+
+}
+
+.filaDirecto[hidden]{
+
+    display:none;
+
+}
+
+.insigniaDirecto{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+    background:#e0362f;
+
+    color:#fff;
+
+    font-weight:700;
+
+    font-size:.8rem;
+
+    letter-spacing:.04em;
+
+    padding:9px 16px;
+
+    border-radius:999px;
+
+}
+
+.puntoDirecto{
+
+    width:8px;
+
+    height:8px;
+
+    border-radius:50%;
+
+    background:#fff;
+
+    animation:parpadeoDirecto 1.4s infinite;
+
+}
+
+@keyframes parpadeoDirecto{
+
+    0%, 100%{ opacity:1; }
+
+    50%{ opacity:.25; }
+
+}
+
 
 button{
 
@@ -315,7 +383,9 @@ button:hover{
 =============================*/
 
 #pantallaInicio,
-#pantallaDirecto{
+#pantallaDirecto,
+#pantallaConsultas,
+#pantallaGraficas{
 
     max-width:1300px;
 
@@ -386,6 +456,8 @@ button:hover{
 
     perspective:1000px;
 
+    -webkit-perspective:1000px;
+
 }
 
 .tarjetaInterior{
@@ -400,12 +472,16 @@ button:hover{
 
     transform-style:preserve-3d;
 
+    -webkit-transform-style:preserve-3d;
+
 }
 
 .tarjeta.girada .tarjetaInterior,
 .curiosidad.girada .tarjetaInterior{
 
     transform:rotateY(180deg);
+
+    -webkit-transform:rotateY(180deg);
 
 }
 
@@ -437,6 +513,8 @@ button:hover{
 
     -webkit-backface-visibility:hidden;
 
+    -webkit-transform:rotateZ(0);
+
     overflow:hidden;
 
 }
@@ -460,6 +538,8 @@ button:hover{
 .caraTrasera{
 
     transform:rotateY(180deg);
+
+    -webkit-transform:rotateY(180deg);
 
 }
 
@@ -614,6 +694,8 @@ button:hover{
 
     align-items: center;
 
+    margin-top:40px;
+
 }
 
 .controlesCuriosidades{
@@ -621,6 +703,24 @@ button:hover{
     display:flex;
 
     gap:10px;
+
+}
+
+.indicadorPagina{
+
+    font-size:.8rem;
+
+    font-weight:400;
+
+    opacity:.75;
+
+    margin-left:4px;
+
+}
+
+.curiosidad.oculta{
+
+    display:none;
 
 }
 #btnCuriosidadAnterior,
@@ -679,7 +779,9 @@ button:hover{
 @media (max-width: 768px){
 
     #pantallaInicio,
-    #pantallaDirecto{
+    #pantallaDirecto,
+    #pantallaConsultas,
+    #pantallaGraficas{
 
         padding:15px;
 
@@ -717,7 +819,13 @@ button:hover{
 
     .tarjeta{
 
-        height:145px;
+        height:195px;
+
+    }
+
+    .caraTarjeta{
+
+        gap:6px;
 
         padding:10px;
 
@@ -1028,5 +1136,490 @@ button:hover{
         grid-template-columns:1fr;
 
     }
+
+}
+
+
+/* ==========================================
+   FLIP EN MÓVIL: sin animación 3D
+   (backface-visibility no es fiable en todos
+   los navegadores móviles; en vez de animar la
+   vuelta, simplemente mostramos una cara u otra)
+========================================== */
+
+@media(max-width:768px){
+
+    .tarjeta,
+    .curiosidad{
+
+        perspective:none;
+
+    }
+
+    .tarjetaInterior{
+
+        transition:none;
+
+        transform:none;
+
+        -webkit-transform:none;
+
+    }
+
+    .caraDelantera{
+
+        display:flex;
+
+    }
+
+    .caraTrasera{
+
+        display:none;
+
+        transform:none;
+
+        -webkit-transform:none;
+
+    }
+
+    .girada .caraDelantera{
+
+        display:none;
+
+    }
+
+    .girada .caraTrasera{
+
+        display:flex;
+
+    }
+
+}
+
+
+/* ==========================================
+   CONSULTAS
+========================================== */
+
+.gridConsultas{
+
+    display:grid;
+
+    grid-template-columns:320px 1fr;
+
+    gap:30px;
+
+    align-items:start;
+
+    margin-top:20px;
+
+}
+
+/* Consultas ya no muestra tabla ni gráfica, solo un resultado — no
+   necesita ocupar todo el ancho de la pantalla como Gráficas. */
+#pantallaConsultas .gridConsultas{
+
+    max-width:560px;
+
+    grid-template-columns:240px 1fr;
+
+}
+
+.columnaFiltros,
+.columnaResultados{
+
+    background:rgba(255,255,255,.08);
+
+    border-radius:18px;
+
+    padding:24px;
+
+    box-shadow:var(--sombra);
+
+}
+
+.columnaFiltros h2,
+.columnaResultados h2{
+
+    font-size:1.05rem;
+
+    margin-bottom:18px;
+
+    color:#fff;
+
+}
+
+.filtroConsulta{
+
+    margin-bottom:20px;
+
+}
+
+.filtroConsulta label{
+
+    display:block;
+
+    font-size:.85rem;
+
+    color:var(--color-secundario);
+
+    margin-bottom:8px;
+
+}
+
+.filtroConsulta select,
+.fechasPersonalizadas input{
+
+    width:100%;
+
+    padding:12px 14px;
+
+    border-radius:10px;
+
+    border:1px solid rgba(255,255,255,.18);
+
+    background:rgba(255,255,255,.08);
+
+    color:#fff;
+
+    font-size:.95rem;
+
+}
+
+.filtroConsulta select option{
+
+    background:#1c2b40;
+
+    color:#fff;
+
+}
+
+.fechasPersonalizadas{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:stretch;
+
+    gap:8px;
+
+    margin-top:10px;
+
+}
+
+.fechasPersonalizadas[hidden]{
+
+    display:none;
+
+}
+
+.fechasPersonalizadas span{
+
+    color:var(--color-secundario);
+
+    font-size:.8rem;
+
+    text-align:center;
+
+}
+
+.botonConsultar{
+
+    width:100%;
+
+    margin-top:6px;
+
+}
+
+.tarjetaResultado{
+
+    background:rgba(255,255,255,.06);
+
+    border-radius:16px;
+
+    padding:34px;
+
+    text-align:center;
+
+}
+
+.resultadoEtiqueta{
+
+    color:var(--color-secundario);
+
+    font-size:.95rem;
+
+    margin-bottom:14px;
+
+}
+
+.resultadoValor{
+
+    font-size:3rem;
+
+    font-weight:700;
+
+    color:#fff;
+
+}
+
+.resultadoRango{
+
+    margin-top:12px;
+
+    color:var(--color-secundario);
+
+    font-size:.85rem;
+
+}
+
+.resultadoFecha{
+
+    margin-top:6px;
+
+    color:#bcd2ff;
+
+    font-size:.9rem;
+
+    font-weight:600;
+
+}
+
+.resultadoFecha[hidden]{
+
+    display:none;
+
+}
+
+.contenedorTabla{
+
+    margin-top:24px;
+
+    max-height:420px;
+
+    overflow-y:auto;
+
+    border-radius:12px;
+
+    border:1px solid rgba(255,255,255,.1);
+
+}
+
+.tablaResultado{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+.tablaResultado th{
+
+    position:sticky;
+
+    top:0;
+
+    background:#22344c;
+
+    text-align:left;
+
+    padding:12px 16px;
+
+    font-size:.85rem;
+
+    color:var(--color-secundario);
+
+}
+
+.tablaResultado th[hidden]{
+
+    display:none;
+
+}
+
+.tablaResultado td{
+
+    padding:10px 16px;
+
+    font-size:.9rem;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+}
+
+.tablaResultado tr:nth-child(even) td{
+
+    background:rgba(255,255,255,.03);
+
+}
+
+@media(max-width:900px){
+
+    .gridConsultas{
+
+        grid-template-columns:1fr;
+
+    }
+
+    #pantallaConsultas .gridConsultas{
+
+        grid-template-columns:1fr;
+
+        max-width:100%;
+
+    }
+
+}
+
+
+/* ==========================================
+   GRÁFICAS
+========================================== */
+
+.contenedorGrafica{
+
+    position:relative;
+
+    height:340px;
+
+    margin-top:10px;
+
+}
+
+.contenedorGraficaPequeña{
+
+    height:260px;
+
+}
+
+.tituloSeccionGrafica{
+
+    margin-top:34px;
+
+    font-size:1.05rem;
+
+    color:#fff;
+
+}
+
+#bloqueRosaVientos{
+
+    max-width:420px;
+
+    margin:0 auto;
+
+}
+
+
+/* ==========================================
+   SELECTOR GRÁFICA / TABLA (Gráficas)
+========================================== */
+
+.cabeceraResultadosGrafica{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    gap:12px;
+
+}
+
+.selectorVista{
+
+    display:flex;
+
+    gap:8px;
+
+    background:rgba(255,255,255,.08);
+
+    border-radius:10px;
+
+    padding:4px;
+
+}
+
+.botonVista{
+
+    padding:8px 16px;
+
+    border-radius:8px;
+
+    background:transparent;
+
+    color:var(--color-secundario);
+
+    font-size:.9rem;
+
+}
+
+.botonVista:hover{
+
+    background:rgba(255,255,255,.1);
+
+    transform:none;
+
+}
+
+.botonVista.activo{
+
+    background:var(--color-boton);
+
+    color:#fff;
+
+}
+
+@media(max-width:600px){
+
+    .cabeceraResultadosGrafica{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+    }
+
+}
+
+
+/* ==========================================
+   DISTRIBUCIÓN DE WEIBULL
+========================================== */
+
+.notaWeibull{
+
+    margin-top:10px;
+
+    color:var(--color-secundario);
+
+    font-size:.85rem;
+
+    line-height:1.5;
+
+}
+
+
+.avisoComparativa{
+
+    background:rgba(255,200,60,.15);
+
+    border:1px solid rgba(255,200,60,.4);
+
+    color:#ffe6a3;
+
+    padding:12px 16px;
+
+    border-radius:12px;
+
+    margin-top:10px;
+
+    font-size:.85rem;
+
+    line-height:1.5;
 
 }

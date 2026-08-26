@@ -79,7 +79,7 @@
         <footer>
 
             <button id="btnInicio">
-                01 Inicio
+                01 Records
             </button>
 
             <button id="btnConsultas">
@@ -90,11 +90,18 @@
                 03 Gráficas
             </button>
 
+        </footer>
+
+        <!-- Oculto temporalmente: para volver a mostrarlo, quita el atributo "hidden" de esta línea -->
+        <div class="filaDirecto" hidden>
+
+            <span class="insigniaDirecto"><span class="puntoDirecto"></span>LIVE</span>
+
             <button id="btnDatosDirecto">
                 04 Datos en directo
             </button>
 
-        </footer>
+        </div>
 
     </section>
 
@@ -141,6 +148,9 @@
                 <dt>Helada</dt>
                 <dd>Día en el que la temperatura mínima ha bajado de 0 °C.</dd>
 
+                <dt>Ola de calor</dt>
+                <dd>Episodio de 3 o más días consecutivos con temperatura máxima igual o superior a 35,4 °C. Sigue el criterio oficial de AEMET (3+ días seguidos superando un umbral), pero el propio umbral de AEMET se calcula por estación de referencia (percentil 95 de las máximas de julio-agosto entre 1971-2000) y no publica ese dato exacto para Vegas de Matute. Los 35,4 °C son una aproximación razonable para esta zona y altitud, a falta del valor oficial confirmado — se podrá ajustar más adelante, incluso calculando el percentil real de esta estación cuando haya suficientes veranos de datos acumulados.</dd>
+
                 <dt>Verano / invierno meteorológico</dt>
                 <dd>A efectos estadísticos, el verano agrupa junio, julio y agosto, y el invierno diciembre, enero y febrero (el invierno "a caballo" entre dos años se identifica con el año en que termina).</dd>
 
@@ -164,7 +174,7 @@
 
                     <div>
 
-                        <h1>01 · Inicio</h1>
+                        <h1>01 · Records</h1>
                         <p>Dashboard principal</p>
 
                     </div>
@@ -411,7 +421,7 @@
 
     <button id="btnCuriosidadAnterior">❮</button>
 
-    <h2>¿Sabías...?</h2>
+    <h2>¿Sabías...? <span id="indicadorPaginaCuriosidades" class="indicadorPagina"></span></h2>
 
     <button id="btnCuriosidadSiguiente">❯</button>
 
@@ -419,7 +429,7 @@
 
                     <div class="gridCuriosidades">
 
-    <article class="curiosidad">
+    <article class="curiosidad" id="curiosidad1">
 
         <div class="tarjetaInterior">
 
@@ -445,7 +455,7 @@
 
     </article>
 
-    <article class="curiosidad">
+    <article class="curiosidad" id="curiosidad2">
 
         <div class="tarjetaInterior">
 
@@ -471,7 +481,7 @@
 
     </article>
 
-    <article class="curiosidad">
+    <article class="curiosidad" id="curiosidad3">
 
         <div class="tarjetaInterior">
 
@@ -497,7 +507,7 @@
 
     </article>
 
-    <article class="curiosidad">
+    <article class="curiosidad" id="curiosidad4">
 
         <div class="tarjetaInterior">
 
@@ -533,11 +543,348 @@
 
             <section id="pantallaConsultas" hidden>
 
+                <header class="cabeceraDashboard">
+
+                    <div>
+
+                        <h1>02 · Consultas</h1>
+                        <p>Búsqueda, filtrado y exportación de datos</p>
+
+                    </div>
+
+                    <button class="logoDashboard">
+
+                        MeteoArtejón
+
+                    </button>
+
+                </header>
+
+                <section class="bloqueDashboard">
+
+                    <h2>Consultas en base de datos histórica</h2>
+
+                </section>
+
+                <div class="gridConsultas">
+
+                    <section class="columnaFiltros">
+
+                        <h2>Filtros</h2>
+
+                        <div class="filtroConsulta">
+
+                            <label for="filtroPeriodo">Periodo</label>
+
+                            <select id="filtroPeriodo">
+                                <option value="7dias">Últimos 7 días</option>
+                                <option value="semana">Última semana</option>
+                                <option value="mes">Último mes</option>
+                                <option value="año" selected>Último año</option>
+                                <option value="todo">Toda la serie</option>
+                                <option value="personalizado">Personalizado…</option>
+                            </select>
+
+                            <div id="fechasPersonalizadas" class="fechasPersonalizadas" hidden>
+
+                                <input type="date" id="filtroFechaInicio">
+                                <span>—</span>
+                                <input type="date" id="filtroFechaFin">
+
+                            </div>
+
+                        </div>
+
+                        <div class="filtroConsulta">
+
+                            <label for="filtroVariable">Variable climática</label>
+
+                            <select id="filtroVariable"></select>
+
+                        </div>
+
+                        <div class="filtroConsulta">
+
+                            <label for="filtroIndicador">Indicador climático</label>
+
+                            <select id="filtroIndicador"></select>
+
+                        </div>
+
+                        <button id="btnConsultar" class="botonConsultar">
+                            Consultar
+                        </button>
+
+                    </section>
+
+                    <section class="columnaResultados">
+
+                        <h2>Resultados</h2>
+
+                        <div id="tarjetaResultado" class="tarjetaResultado">
+
+                            <div id="resultadoEtiqueta" class="resultadoEtiqueta">Pulsa "Consultar" para ver un resultado</div>
+                            <div id="resultadoValor" class="resultadoValor">--</div>
+                            <div id="resultadoRango" class="resultadoRango"></div>
+                            <div id="resultadoFecha" class="resultadoFecha" hidden></div>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
             </section>
 
             <!-- ==================== GRÁFICAS ==================== -->
 
             <section id="pantallaGraficas" hidden>
+
+                <header class="cabeceraDashboard">
+
+                    <div>
+
+                        <h1>03 · Gráficas</h1>
+                        <p>Visualización de tendencias y comparativas</p>
+
+                    </div>
+
+                    <button class="logoDashboard">
+
+                        MeteoArtejón
+
+                    </button>
+
+                </header>
+
+                <section class="bloqueDashboard">
+
+                    <h2>Consultas gráficas</h2>
+
+                </section>
+
+                <div class="gridConsultas">
+
+                    <section class="columnaFiltros">
+
+                        <h2>Controles</h2>
+
+                        <div class="filtroConsulta">
+
+                            <label for="graficaVariable">Variable climática</label>
+
+                            <select id="graficaVariable"></select>
+
+                        </div>
+
+                        <div class="filtroConsulta">
+
+                            <label for="graficaIndicador">Indicador climático</label>
+
+                            <select id="graficaIndicador"></select>
+
+                        </div>
+
+                        <div class="filtroConsulta">
+
+                            <label for="graficaPeriodo">Periodo</label>
+
+                            <select id="graficaPeriodo">
+                                <option value="hoy">Último día registrado (por horas)</option>
+                                <option value="7dias">Últimos 7 días (por días)</option>
+                                <option value="mes">Últimos 30 días (por días)</option>
+                                <option value="año" selected>Último año (por meses)</option>
+                                <option value="personalizado">Personalizado…</option>
+                            </select>
+
+                            <div id="graficaFechasPersonalizadas" class="fechasPersonalizadas" hidden>
+
+                                <input type="date" id="graficaFechaInicio">
+                                <span>—</span>
+                                <input type="date" id="graficaFechaFin">
+
+                            </div>
+
+                        </div>
+
+                        <div class="filtroConsulta">
+
+                            <label for="graficaGranularidad">Granularidad</label>
+
+                            <select id="graficaGranularidad">
+                                <option value="auto" selected>Automática (según el periodo)</option>
+                                <option value="hora">Por horas</option>
+                                <option value="dia">Por días</option>
+                                <option value="mes">Por meses</option>
+                            </select>
+
+                        </div>
+
+                        <div class="filtroConsulta">
+
+                            <label for="graficaComparativo">Periodo comparativo</label>
+
+                            <select id="graficaComparativo">
+                                <option value="ninguno" selected>Sin comparar</option>
+                                <option value="anterior">Periodo anterior equivalente</option>
+                                <option value="personalizado">Personalizado…</option>
+                            </select>
+
+                            <div id="graficaComparativoFechas" class="fechasPersonalizadas" hidden>
+
+                                <input type="date" id="graficaComparativoInicio">
+                                <span>—</span>
+                                <input type="date" id="graficaComparativoFin">
+
+                            </div>
+
+                        </div>
+
+                        <button id="btnGenerarGrafica" class="botonConsultar">
+                            Generar gráficas
+                        </button>
+
+                    </section>
+
+                    <section class="columnaResultados">
+
+                        <div class="cabeceraResultadosGrafica">
+
+                            <h2 id="tituloGraficaLinea">Tendencia</h2>
+
+                            <div class="selectorVista">
+
+                                <button id="btnVistaGrafica" class="botonVista activo" type="button">
+                                    📈 Gráfica
+                                </button>
+
+                                <button id="btnVistaTabla" class="botonVista" type="button">
+                                    📋 Tabla
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                        <div id="vistaGrafica">
+
+                            <div id="bloqueTendenciaGrafica" class="contenedorGrafica">
+                                <canvas id="canvasLinea"></canvas>
+                            </div>
+
+                            <div id="bloqueComparativaGrafica">
+
+                                <h2 class="tituloSeccionGrafica">Comparativa de periodos</h2>
+
+                                <p id="avisoComparativa" class="avisoComparativa" hidden></p>
+
+                                <div class="contenedorGrafica contenedorGraficaPequeña">
+                                    <canvas id="canvasComparativa"></canvas>
+                                </div>
+
+                            </div>
+
+                            <div id="bloqueRosaVientos" hidden>
+
+                                <h2 class="tituloSeccionGrafica">Rosa de los vientos</h2>
+
+                                <div class="contenedorGrafica contenedorGraficaPequeña">
+                                    <canvas id="canvasRosaVientos"></canvas>
+                                </div>
+
+                            </div>
+
+                            <div id="bloqueWeibull" hidden>
+
+                                <h2 class="tituloSeccionGrafica">Distribución de Weibull (viento)</h2>
+
+                                <div class="contenedorGrafica contenedorGraficaPequeña">
+                                    <canvas id="canvasWeibull"></canvas>
+                                </div>
+
+                                <p id="infoWeibull" class="notaWeibull"></p>
+
+                            </div>
+
+                        </div>
+
+                        <div id="vistaTabla" hidden>
+
+                            <p id="avisoComparativaTabla" class="avisoComparativa" hidden></p>
+
+                            <div class="contenedorTabla">
+
+                                <table class="tablaResultado">
+
+                                    <thead>
+                                        <tr>
+                                            <th id="cabeceraTablaGraficaPosicion">Posición</th>
+                                            <th id="cabeceraTablaGraficaActual">Periodo actual</th>
+                                            <th id="cabeceraTablaGraficaComparativo">Periodo comparativo</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="cuerpoTablaGrafica"></tbody>
+
+                                </table>
+
+                            </div>
+
+                            <div id="bloqueTablaRosaVientos" hidden>
+
+                                <h2 class="tituloSeccionGrafica">Rosa de los vientos</h2>
+
+                                <div class="contenedorTabla">
+
+                                    <table class="tablaResultado">
+
+                                        <thead>
+                                            <tr>
+                                                <th>Dirección</th>
+                                                <th>Periodo actual</th>
+                                                <th id="cabeceraTablaRosaComparativo">Periodo comparativo</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="cuerpoTablaRosaVientos"></tbody>
+
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+                            <div id="bloqueTablaWeibull" hidden>
+
+                                <h2 class="tituloSeccionGrafica">Distribución de Weibull (viento)</h2>
+
+                                <p id="infoTablaWeibull" class="notaWeibull"></p>
+
+                                <div class="contenedorTabla">
+
+                                    <table class="tablaResultado">
+
+                                        <thead>
+                                            <tr>
+                                                <th>Intervalo (km/h)</th>
+                                                <th>Observado</th>
+                                                <th>Weibull ajustado</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="cuerpoTablaWeibull"></tbody>
+
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                </div>
 
             </section>
 
@@ -632,13 +979,17 @@
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 
     <script src="js/excel.js"></script>
     <script src="js/consultas.js"></script>
+    <script src="js/motor-consultas.js"></script>
     <script src="js/portada.js"></script>
     <script src="js/curiosidades.js"></script>
     <script src="js/inicio.js"></script>
     <script src="js/directo.js"></script>
+    <script src="js/pantalla-consultas.js"></script>
+    <script src="js/pantalla-graficas.js"></script>
     <script src="js/app.js"></script>
 
 </body>

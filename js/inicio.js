@@ -164,15 +164,51 @@ let curiosidades = [];
 
 let paginaCuriosidades = 0;
 
+function esMovil() {
+
+    return window.matchMedia("(max-width: 768px)").matches;
+
+}
+
+function obtenerPorPagina() {
+
+    return esMovil() ? 2 : 4;
+
+}
+
 function mostrarCuriosidades() {
+
+    const porPagina = obtenerPorPagina();
+    const totalPaginas = Math.ceil(curiosidades.length / porPagina);
+
+    // Si venimos de cambiar de tamaño de pantalla, recolocamos la página
+    // dentro de rango en vez de dejarla apuntando a un hueco vacío.
+    if (paginaCuriosidades >= totalPaginas) {
+        paginaCuriosidades = 0;
+    }
 
     for (let i = 0; i < 4; i++) {
 
-        const indice = (paginaCuriosidades * 4 + i) % curiosidades.length;
+        const tarjeta = document.getElementById(`curiosidad${i + 1}`) ||
+            document.querySelectorAll(".curiosidad")[i];
+
+        if (i >= porPagina) {
+
+            tarjeta.classList.add("oculta");
+            continue;
+
+        }
+
+        tarjeta.classList.remove("oculta");
+
+        const indice = (paginaCuriosidades * porPagina + i) % curiosidades.length;
 
         pintarCuriosidad(i + 1, curiosidades[indice]);
 
     }
+
+    document.getElementById("indicadorPaginaCuriosidades").textContent =
+        `(${paginaCuriosidades + 1}/${totalPaginas})`;
 
     // Al cambiar de página, las tarjetas vuelven a su cara delantera
     document.querySelectorAll(".curiosidad.girada").forEach(tarjeta => {
@@ -218,9 +254,12 @@ document.querySelectorAll(".curiosidad").forEach(tarjeta => {
 });
 document.getElementById("btnCuriosidadSiguiente").addEventListener("click", () => {
 
+    const porPagina = obtenerPorPagina();
+    const totalPaginas = Math.ceil(curiosidades.length / porPagina);
+
     paginaCuriosidades++;
 
-    if (paginaCuriosidades * 4 >= curiosidades.length) {
+    if (paginaCuriosidades >= totalPaginas) {
         paginaCuriosidades = 0;
     }
 
@@ -230,15 +269,32 @@ document.getElementById("btnCuriosidadSiguiente").addEventListener("click", () =
 
 document.getElementById("btnCuriosidadAnterior").addEventListener("click", () => {
 
-    paginaCuriosidades--;
+    const porPagina = obtenerPorPagina();
+    const totalPaginas = Math.ceil(curiosidades.length / porPagina);
 
-    const totalPaginas = Math.ceil(curiosidades.length / 4);
+    paginaCuriosidades--;
 
     if (paginaCuriosidades < 0) {
         paginaCuriosidades = totalPaginas - 1;
     }
 
     mostrarCuriosidades();
+
+});
+
+let temporizadorRedimension;
+
+window.addEventListener("resize", () => {
+
+    clearTimeout(temporizadorRedimension);
+
+    temporizadorRedimension = setTimeout(() => {
+
+        if (curiosidades.length > 0) {
+            mostrarCuriosidades();
+        }
+
+    }, 200);
 
 });
 // ======================================

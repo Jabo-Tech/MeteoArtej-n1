@@ -37,7 +37,7 @@ async function cargarExcel() {
 
         viento: registro.viento,
         racha: registro.racha,
-        direccion: registro.direccion,
+        direccion: registro.direccion, // grados (0-360); ver obtenerDireccionPredominante
 
         presionRelativa: registro.presionRelativa,
         presionAbsoluta: registro.presionAbsoluta

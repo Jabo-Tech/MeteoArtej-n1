@@ -32,15 +32,87 @@ function gradosADireccion(grados) {
 
 }
 
-// Extrae un valor numérico de un nodo tipo { value: "23.4", unit: "℃" }
-// devolviendo null si no existe, en vez de lanzar un error.
-function num(nodo) {
+// Extrae el valor numérico y la unidad de un nodo tipo
+// { value: "90.3", unit: "℉" }, devolviendo { valor, unidad } o
+// { valor: null, unidad: null } si no existe.
+function extraer(nodo) {
 
-    if (!nodo || nodo.value === undefined || nodo.value === null) return null;
+    if (!nodo || nodo.value === undefined || nodo.value === null) {
+        return { valor: null, unidad: null };
+    }
 
     const valor = Number(nodo.value);
 
-    return isNaN(valor) ? null : valor;
+    if (isNaN(valor)) return { valor: null, unidad: null };
+
+    return { valor, unidad: (nodo.unit || "").toLowerCase() };
+
+}
+
+// Cada campo puede venir en la unidad por defecto de la cuenta de
+// Ecowitt (imperial o métrico, según lo tengan configurado). Estas
+// funciones normalizan siempre a °C, hPa, km/h y mm, mirando la
+// unidad que diga la propia respuesta en lugar de asumir nada.
+
+function num(nodo) {
+
+    const { valor } = extraer(nodo);
+
+    return valor;
+
+}
+
+function temperaturaC(nodo) {
+
+    const { valor, unidad } = extraer(nodo);
+
+    if (valor === null) return null;
+
+    if (unidad.includes("f") || unidad.includes("℉")) return (valor - 32) * 5 / 9;
+
+    return valor;
+
+}
+
+function presionHpa(nodo) {
+
+    const { valor, unidad } = extraer(nodo);
+
+    if (valor === null) return null;
+
+    if (unidad.includes("inhg")) return valor * 33.8639;
+
+    if (unidad.includes("mmhg")) return valor * 1.33322;
+
+    return valor;
+
+}
+
+function velocidadKmh(nodo) {
+
+    const { valor, unidad } = extraer(nodo);
+
+    if (valor === null) return null;
+
+    if (unidad.includes("mph")) return valor * 1.60934;
+
+    if (unidad.includes("m/s") || unidad.includes("mps")) return valor * 3.6;
+
+    if (unidad.includes("knot")) return valor * 1.852;
+
+    return valor;
+
+}
+
+function lluviaMm(nodo) {
+
+    const { valor, unidad } = extraer(nodo);
+
+    if (valor === null) return null;
+
+    if (unidad === "in" || unidad.includes("inch")) return valor * 25.4;
+
+    return valor;
 
 }
 
@@ -82,17 +154,17 @@ async function main() {
 
     const salida = {
         actualizado: new Date().toISOString(),
-        temperatura: num(outdoor.temperature),
-        sensacion: num(outdoor.feels_like),
+        temperatura: temperaturaC(outdoor.temperature),
+        sensacion: temperaturaC(outdoor.feels_like),
         humedad: num(outdoor.humidity),
-        viento: num(wind.wind_speed),
-        racha: num(wind.wind_gust),
+        viento: velocidadKmh(wind.wind_speed),
+        racha: velocidadKmh(wind.wind_gust),
         direccionGrados: direccionGrados,
         direccion: direccionAbrev,
         direccionNombre: direccionAbrev ? NOMBRES_DIRECCION[direccionAbrev] : null,
-        presion: num(pressure.relative),
-        lluviaHoy: num(rainfall.daily),
-        intensidadLluvia: num(rainfall.rain_rate),
+        presion: presionHpa(pressure.relative),
+        lluviaHoy: lluviaMm(rainfall.daily),
+        intensidadLluvia: lluviaMm(rainfall.rain_rate),
         radiacion: num(solar.solar),
         uvi: num(solar.uvi)
     };
